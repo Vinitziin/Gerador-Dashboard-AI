@@ -2,8 +2,10 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.llm_handler import gerar_codigo
+from utils.safe_exec import executar_codigo
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Gerador de Dashboard", layout="wide")
 
@@ -26,9 +28,17 @@ if uploaded_file is not None:
         if prompt and uploaded_file is not None:
             with st.spinner("Gerando código..."):
                 codigo_gerado = gerar_codigo(
-                    f"DataFrame com colunas: {', '.join(df.columns)}.\nUsuário pediu: {prompt}\nGere um código Python para isso."
+                    f"DataFrame com colunas: {', '.join(df.columns)}.\nUsuário pediu: {prompt}\nGere um código Python para isso, utilizando Pandas e Matplotlib, sem bibliotecas adicionais, não adicione comentarios ou markdown, apenas o código Python necessário para gerar a visualização solicitada, não é necessario importar nenhuma biblioteca, não faça esse tipo de importação: import pandas as pd, import matplotlib.pyplot as plt, apenas gere o código necessário"
                 )
                 st.subheader("🧠 Código Gerado:")
                 st.code(codigo_gerado, language='python')
+
+                st.subheader("📈 Resultado da Execução:")
+                output, erro = executar_codigo(codigo_gerado, df)
+
+                if erro:
+                    st.error(f"❌ Erro ao executar o código: \n\n{erro}")
+                else:
+                    st.pyplot(plt)
     except Exception as e:
         st.error(f"❌ Erro ao carregar o arquivo: {e}")
