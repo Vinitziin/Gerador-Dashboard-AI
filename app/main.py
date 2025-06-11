@@ -28,17 +28,20 @@ if uploaded_file is not None:
         if prompt and uploaded_file is not None:
             with st.spinner("Gerando código..."):
                 codigo_gerado = gerar_codigo(
-                    f"DataFrame com colunas: {', '.join(df.columns)}.\nUsuário pediu: {prompt}\nGere um código Python para isso, utilizando Pandas e Matplotlib, sem bibliotecas adicionais, não adicione comentarios ou markdown, apenas o código Python necessário para gerar a visualização solicitada, não é necessario importar nenhuma biblioteca, não faça esse tipo de importação: import pandas as pd, import matplotlib.pyplot as plt, apenas gere o código necessário"
+                    f"DataFrame com colunas: {', '.join(df.columns)}.\nUsuário pediu: {prompt}\nGere um código Python para isso, utilizando Plotly Express (px), sem bibliotecas adicionais, não adicione comentarios ou markdown, apenas o código Python necessário para gerar a visualização solicitada, não é necessario importar nenhuma biblioteca, não faça esse tipo de importação: import pandas as pd, import matplotlib.pyplot as plt, apenas gere o código necessário"
                 )
                 st.subheader("🧠 Código Gerado:")
                 st.code(codigo_gerado, language='python')
 
                 st.subheader("📈 Resultado da Execução:")
-                output, erro = executar_codigo(codigo_gerado, df)
+                fig, erro = executar_codigo(codigo_gerado, df)
 
                 if erro:
                     st.error(f"❌ Erro ao executar o código: \n\n{erro}")
+                elif fig is not None:
+                    st.plotly_chart(fig, use_container_width=True)
                 else:
-                    st.pyplot(plt)
+                    st.warning("⚠️ Nenhum gráfico foi gerado.")
+
     except Exception as e:
         st.error(f"❌ Erro ao carregar o arquivo: {e}")
